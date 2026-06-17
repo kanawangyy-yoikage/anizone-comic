@@ -220,3 +220,25 @@
   border-bottom: 1px solid var(--border);
   padding-bottom: 0.75rem;
 }
+
+/* ---- DETAIL: meta rows (author, status, rating) ---- */
+.detail-meta-row {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  margin-bottom: 0.3rem;
+}
+.detail-meta-row span:first-child {
+  color: var(--muted);
+  min-width: 60px;
+}
+
+/* ---- CARD: chapter badge ---- */
+.chapter-badge {
+  font-size: 0.72rem;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}

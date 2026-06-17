@@ -22,12 +22,12 @@ const ui = {
   },
 
   comicCard(comic) {
-    const title = comic.title || comic.judul || comic.name || 'Tanpa Judul';
-    const thumb = comic.thumbnail || comic.cover || comic.image || '';
-    const type  = comic.type || comic.tipe || '';
-    const latestChap = comic.chapters?.[0]; const chap  = latestChap?.title || comic.latest_chapter || comic.chapter || '';
-    // Komikindo pakai field 'slug' langsung
-    const slug  = comic.slug || comic.komik_id || comic.id || '';
+    const title = comic.title || 'Tanpa Judul';
+    const thumb = comic.image || comic.thumbnail || comic.cover || '';
+    const type  = comic.type  || '';
+    // /latest punya chapters[], /library tidak — handle keduanya
+    const chap  = comic.chapters?.[0]?.title || comic.latest_chapter || comic.chapter || '';
+    const slug  = comic.slug || comic.id || '';
 
     const safeSlug  = slug.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
     const safeTitle = title.replace(/"/g, '&quot;');
@@ -42,7 +42,7 @@ const ui = {
           <div class="comic-title">${title}</div>
           <div class="comic-meta">
             ${this.typeBadge(type)}
-            ${chap ? `<span>${chap}</span>` : ''}
+            ${chap ? `<span class="chapter-badge">${chap}</span>` : ''}
           </div>
         </div>
       </div>`;
@@ -59,45 +59,51 @@ const ui = {
 
   renderPagination(containerId, current, total, onPage) {
     const el = this.el(containerId);
-    const clamped = Math.min(total, 20);
+    if (total <= 1) { el.innerHTML = ''; return; }
+    const clamped = Math.min(total, 50);
     const start   = Math.max(1, current - 2);
     const end     = Math.min(clamped, current + 2);
     let html = '';
     if (start > 1) {
-      html += btn(1, current, onPage);
-      if (start > 2) html += '<span style="color:var(--muted);padding:0 0.25rem">…</span>';
+      html += btn(1); if (start > 2) html += '<span style="color:var(--muted);padding:0 .25rem">…</span>';
     }
-    for (let i = start; i <= end; i++) html += btn(i, current, onPage);
+    for (let i = start; i <= end; i++) html += btn(i);
     if (end < clamped) {
-      if (end < clamped - 1) html += '<span style="color:var(--muted);padding:0 0.25rem">…</span>';
-      html += btn(clamped, current, onPage);
+      if (end < clamped - 1) html += '<span style="color:var(--muted);padding:0 .25rem">…</span>';
+      html += btn(clamped);
     }
     el.innerHTML = html;
-    function btn(page, cur, cb) {
-      return `<button class="page-btn${page === cur ? ' active' : ''}"
-                      onclick="(${cb.toString()})(${page})">${page}</button>`;
+    function btn(page) {
+      return `<button class="page-btn${page === current ? ' active' : ''}"
+        onclick="(${onPage.toString()})(${page})">${page}</button>`;
     }
   },
 
   renderDetail(comic, chapters, onChapter) {
-    const title    = comic.title || comic.judul || 'Tanpa Judul';
-    const thumb    = comic.thumbnail || comic.cover || comic.image || '';
-    const type     = comic.type || comic.tipe || '';
-    const status   = comic.status || '';
-    const synopsis = comic.synopsis || comic.sinopsis || comic.description || '';
-    const genres   = Array.isArray(comic.genres || comic.genre)
-                     ? (comic.genres || comic.genre) : [];
+    const title   = comic.title   || 'Tanpa Judul';
+    const thumb   = comic.image   || comic.thumbnail || '';
+    const type    = comic.type    || '';
+    const status  = comic.status  || '';
+    const author  = comic.author  || '';
+    const synopsis = comic.synopsis || '';
+    // genres dari detail: [{ name, slug }]
+    const genres  = Array.isArray(comic.genres) ? comic.genres : [];
 
     const genreHTML = genres
-      .map(g => `<span class="badge badge-genre">${typeof g === 'object' ? g.name || g : g}</span>`)
+      .map(g => `<span class="badge badge-genre">${typeof g === 'object' ? g.name : g}</span>`)
       .join('');
+
+    const metaRows = [
+      author ? `<div class="detail-meta-row"><span>Author</span><span>${author}</span></div>` : '',
+      status ? `<div class="detail-meta-row"><span>Status</span><span>${status}</span></div>` : '',
+      comic.rating ? `<div class="detail-meta-row"><span>Rating</span><span>⭐ ${comic.rating}</span></div>` : '',
+    ].join('');
 
     const chaptersHTML = chapters.length > 0
       ? chapters.map((ch, i) => {
-          // Komikindo: chapter punya field 'slug' untuk endpoint chapter
-          const cSlug = ch.slug || ch.chapter_id || ch.id || '';
-          const name  = ch.title || ch.chapter || ch.name || `Chapter ${i + 1}`;
-          const date  = ch.date || ch.released || ch.updated_on || '';
+          const cSlug = ch.slug || '';
+          const name  = ch.title || ch.name || `Chapter ${i + 1}`;
+          const date  = ch.date  || ch.released || '';
           const safe  = cSlug.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
           return `
             <div class="chapter-item" onclick="(${onChapter.toString()})('${safe}', ${i})">
@@ -110,9 +116,7 @@ const ui = {
     return `
       <div class="detail-header">
         <div class="detail-cover">
-          ${thumb
-            ? `<img src="${thumb}" alt="${title.replace(/"/g,'&quot;')}" loading="lazy">`
-            : `<div class="no-cover">📚</div>`}
+          ${thumb ? `<img src="${thumb}" alt="${title.replace(/"/g,'&quot;')}" loading="lazy">` : '<div class="no-cover">📚</div>'}
         </div>
         <div class="detail-info">
           <div class="detail-title">${title}</div>
@@ -120,6 +124,7 @@ const ui = {
             ${this.typeBadge(type)}
             ${status ? `<span class="badge badge-status">${status}</span>` : ''}
           </div>
+          ${metaRows}
           ${genreHTML ? `<div class="detail-genres">${genreHTML}</div>` : ''}
           ${synopsis ? `<div class="detail-synopsis">${synopsis}</div>` : ''}
         </div>
@@ -135,11 +140,12 @@ const ui = {
       el.innerHTML = '<div class="error-msg">Tidak ada gambar untuk chapter ini.</div>';
       return;
     }
+    // images dari chapter API: [{ id, url }]
     el.innerHTML = images.map((img, idx) => {
-      const src = typeof img === 'string' ? img : img.src || img.url || img.image || '';
+      const src = typeof img === 'string' ? img : img.url || img.src || img.image || '';
       if (!src) return '';
       return `<img src="${src}" alt="Halaman ${idx + 1}"
-        loading="${idx < 2 ? 'eager' : 'lazy'}"
+        loading="${idx < 3 ? 'eager' : 'lazy'}"
         onerror="this.style.display='none'">`;
     }).filter(Boolean).join('');
   },
