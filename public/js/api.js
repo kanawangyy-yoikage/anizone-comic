@@ -1,5 +1,5 @@
 /* =============================================
-   API.JS — Updated for sankavollerei.web.id/comic
+   API.JS — Updated for https://www.sankavollerei.web.id/comic
    ============================================= */
 
 const API_BASE = 'https://www.sankavollerei.web.id/comic';
@@ -9,17 +9,15 @@ const api = {
     try {
       const res = await fetch(API_BASE + path);
       if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-      const data = await res.json();
-      return data;
+      return await res.json();
     } catch (err) {
-      console.error('API Error:', err);
+      console.error('❌ API Error:', err);
       throw err;
     }
   },
 
-  // Extractor utama
+  // ==================== HELPERS ====================
   extractList(data) {
-    // Beberapa kemungkinan struktur respons
     return data?.data?.comics ||
            data?.data ||
            data?.results ||
@@ -37,47 +35,39 @@ const api = {
 
   // ==================== ENDPOINTS ====================
 
-  // Komik Terbaru (Homepage)
+  /** Komik Terbaru */
   getLatest(page = 1) {
     return this.fetch(`/terbaru?page=${page}`);
   },
 
-  // Library / Pustaka
+  /** Library / Pustaka */
   getLibrary({ type = '', page = 1 } = {}) {
-    const params = new URLSearchParams({ page });
-    if (type) params.set('type', type); // Manga, Manhwa, Manhua
+    const params = new URLSearchParams({ page: page });
+    if (type) params.append('type', type);
     return this.fetch(`/pustaka?${params}`);
   },
 
-  // Search
+  /** Search */
   search(query, page = 1) {
     if (!query) return Promise.resolve({ data: [] });
-    const params = new URLSearchParams({ q: query, page });
+    const params = new URLSearchParams({ q: query, page: page });
     return this.fetch(`/search?${params}`);
   },
 
-  // Detail Komik
+  /** Detail Komik */
   getDetail(slug) {
-    return this.fetch(`/comic/${slug}`);
+    return this.fetch(`/comic/${encodeURIComponent(slug)}`);
   },
 
-  // Chapter
+  /** Baca Chapter */
   getChapter(slug) {
-    return this.fetch(`/chapter/${slug}`);
+    return this.fetch(`/chapter/${encodeURIComponent(slug)}`);
   },
 
-  // Optional: Bisa ditambah nanti
+  // Optional endpoints (bisa ditambah nanti)
   // getGenres() { return this.fetch('/genres'); },
   // getTrending() { return this.fetch('/trending'); },
-
-  // Helper untuk cek respons
-  logResponse(data) {
-    console.log('📡 API Response Structure:', data);
-    return data;
-  }
 };
 
-// Untuk debugging (bisa di-comment setelah stabil)
-window.api = api;
-
-export default api;
+console.log('✅ AniZone API loaded successfully');
+window.api = api;   // Pastikan global
