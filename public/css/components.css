@@ -1,0 +1,313 @@
+/* =============================================
+   COMPONENTS.CSS — Reusable UI Components
+   ============================================= */
+
+/* ---- NAVBAR ---- */
+#navbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  height: var(--nav-height);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.logo {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.nav-links {
+  display: flex;
+  gap: 0.25rem;
+  margin-left: 0.5rem;
+}
+
+.nav-btn {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 0.85rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: var(--radius-sm);
+  transition: all 0.15s;
+}
+
+.nav-btn:hover,
+.nav-btn.active {
+  background: var(--surface2);
+  color: var(--text);
+}
+
+/* ---- SEARCH BAR ---- */
+.search-bar {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.4rem 0.75rem;
+  max-width: 280px;
+  width: 100%;
+  transition: border-color 0.15s;
+}
+
+.search-bar:focus-within {
+  border-color: var(--accent);
+}
+
+.search-bar input {
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--text);
+  font-size: 0.85rem;
+  width: 100%;
+}
+
+.search-bar input::placeholder { color: var(--muted); }
+
+.search-bar button {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  padding: 0;
+  transition: color 0.15s;
+}
+
+.search-bar button:hover { color: var(--accent); }
+
+/* ---- SECTION HEADER ---- */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.see-more {
+  font-size: 0.8rem;
+  color: var(--accent);
+  background: none;
+  border: none;
+  transition: opacity 0.15s;
+}
+
+.see-more:hover { opacity: 0.7; text-decoration: underline; }
+
+/* ---- COMIC CARD ---- */
+.comic-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.comic-card {
+  background: var(--surface);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  transition: transform 0.2s, border-color 0.2s, background 0.2s;
+}
+
+.comic-card:hover {
+  background: var(--card-hover);
+  border-color: var(--accent);
+  transform: translateY(-3px);
+}
+
+.comic-thumb {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  background: var(--surface2);
+}
+
+.comic-thumb-placeholder {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  background: linear-gradient(135deg, var(--surface2), var(--border));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+}
+
+.comic-info {
+  padding: 0.6rem 0.7rem;
+}
+
+.comic-title {
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: 0.3rem;
+}
+
+.comic-meta {
+  font-size: 0.7rem;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+/* ---- BADGES ---- */
+.badge {
+  font-size: 0.6rem;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+.badge-manga   { background: #2a1a4a; color: #a080ff; }
+.badge-manhwa  { background: #1a2a1a; color: #60c060; }
+.badge-manhua  { background: #2a1a1a; color: #ff8060; }
+.badge-status  { background: #1a2a1a; color: #60c060; }
+.badge-genre   { background: var(--surface2); color: var(--muted); }
+
+/* ---- FILTER CHIPS ---- */
+.filter-row {
+  display: flex;
+  gap: 0.4rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1.25rem;
+  scrollbar-width: none;
+}
+
+.filter-row::-webkit-scrollbar { display: none; }
+
+.filter-chip {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  padding: 0.3rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+
+.filter-chip:hover,
+.filter-chip.active {
+  border-color: var(--accent);
+  color: var(--text);
+  background: rgba(124, 92, 252, 0.15);
+}
+
+/* ---- PAGINATION ---- */
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 0.4rem;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.page-btn {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  padding: 0.4rem 0.7rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  transition: all 0.15s;
+}
+
+.page-btn:hover,
+.page-btn.active {
+  border-color: var(--accent);
+  color: var(--text);
+  background: rgba(124, 92, 252, 0.15);
+}
+
+/* ---- BACK BUTTON ---- */
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 0.82rem;
+  margin-bottom: 1.25rem;
+  padding: 0;
+  transition: color 0.15s;
+}
+
+.back-btn:hover { color: var(--text); }
+
+/* ---- LOADING & ERROR ---- */
+.loading {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.spinner {
+  width: 30px;
+  height: 30px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  margin: 0 auto 0.75rem;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.error-msg {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 1.5rem;
+  color: #ff6060;
+  font-size: 0.85rem;
+  background: #2a1010;
+  border-radius: var(--radius-md);
+  border: 1px solid #4a2020;
+}
+
+/* ---- RESPONSIVE ---- */
+@media (max-width: 600px) {
+  .nav-links      { display: none; }
+  .search-bar     { max-width: 200px; }
+  .comic-grid     { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 0.75rem; }
+}
