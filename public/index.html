@@ -119,6 +119,24 @@
         <button class="filter-chip" onclick="browseController.setType('manga',this)">Manga</button>
         <button class="filter-chip" onclick="browseController.setType('manhwa',this)">Manhwa</button>
         <button class="filter-chip" onclick="browseController.setType('manhua',this)">Manhua</button>
+        <button class="filter-chip unlimited-chip" id="unlimited-chip-btn" onclick="browseController.toggleUnlimited(this)" title="Akses semua 6.297+ komik">🔥 Semua Komik</button>
+      </div>
+
+      <!-- UNLIMITED SEARCH BAR -->
+      <div class="unlimited-search-bar" id="unlimited-search-bar" style="display:none">
+        <div class="unlimited-search-inner">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+          </svg>
+          <input type="text" id="unlimited-search-input" placeholder="Filter dari semua komik..." autocomplete="off"
+                 oninput="browseController.unlimitedSearch()"
+                 onkeydown="if(event.key==='Escape') browseController.clearUnlimitedSearch()">
+          <button class="search-clear" id="unlimited-clear-btn" onclick="browseController.clearUnlimitedSearch()" title="Hapus">✕</button>
+        </div>
+        <div class="unlimited-badge">
+          <span>🔥</span>
+          <span id="unlimited-counter">Memuat...</span>
+        </div>
       </div>
 
       <!-- GENRE PANEL -->

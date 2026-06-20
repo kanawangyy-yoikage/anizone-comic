@@ -35,6 +35,14 @@ const api = {
     return this.fetch('/bacakomik/populer');
   },
 
+  getUnlimited() {
+    return this.fetch('/unlimited');
+  },
+
+  extractUnlimitedList(data) {
+    return data?.comics ?? data?.komikList ?? data?.results ?? (Array.isArray(data) ? data : []);
+  },
+
   getGenres() {
     return this.fetch('/komikindo/genres');
   },

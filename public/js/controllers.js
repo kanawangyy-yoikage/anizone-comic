@@ -89,9 +89,19 @@ const browseController = {
   _genreLabel: '',
   _genresLoaded: false,
   _genrePanelOpen: false,
+  _unlimitedMode: false,
+  _unlimitedData: null,
+  _unlimitedLoaded: false,
+  _unlimitedSearch: '',
 
   async load() {
     router.go('browse');
+    // Ensure unlimited search bar reflects current mode
+    const unlimitedBar = ui.el('unlimited-search-bar');
+    if (unlimitedBar) unlimitedBar.style.display = this._unlimitedMode ? 'flex' : 'none';
+    // Sync unlimited chip active state
+    const unlimitedBtn = document.getElementById('unlimited-chip-btn');
+    if (unlimitedBtn) unlimitedBtn.classList.toggle('active', this._unlimitedMode);
     this.fetchData();
     if (!this._genresLoaded) this.loadGenres();
   },
@@ -139,6 +149,9 @@ const browseController = {
   },
 
   setType(type, btnEl) {
+    this._unlimitedMode = false;
+    ui.el('unlimited-search-bar').style.display = 'none';
+    this._unlimitedSearch = '';
     document.querySelectorAll('#type-filter .filter-chip').forEach(b => b.classList.remove('active'));
     btnEl.classList.add('active');
     this.type  = type;
@@ -195,6 +208,10 @@ const browseController = {
   },
 
   async fetchData() {
+    if (this._unlimitedMode) {
+      await this.fetchUnlimited();
+      return;
+    }
     ui.skeleton('grid-browse', 12);
     try {
       const data   = await api.getLibrary({ type: this.type, genre: this.genre });
@@ -204,6 +221,86 @@ const browseController = {
     } catch (e) {
       ui.error('grid-browse', `Gagal memuat library: ${e.message}`);
     }
+  },
+
+  async toggleUnlimited(btnEl) {
+    this._unlimitedMode = !this._unlimitedMode;
+
+    // Update button UI
+    document.querySelectorAll('#type-filter .filter-chip').forEach(b => b.classList.remove('active'));
+    if (this._unlimitedMode) {
+      btnEl.classList.add('active');
+    }
+
+    if (this._unlimitedMode) {
+      this.type = '';
+      this.genre = '';
+      this._genreLabel = '';
+      this._updateActiveGenreBar();
+      this._markActiveChip('');
+      ui.el('unlimited-search-bar').style.display = 'flex';
+      await this.fetchUnlimited();
+    } else {
+      ui.el('unlimited-search-bar').style.display = 'none';
+      this._unlimitedSearch = '';
+      const searchInput = document.getElementById('unlimited-search-input');
+      if (searchInput) searchInput.value = '';
+      // Reset to default Semua chip active
+      const allChip = document.querySelector('#type-filter .filter-chip');
+      if (allChip) allChip.classList.add('active');
+      await this.fetchData();
+    }
+  },
+
+  async fetchUnlimited() {
+    ui.skeleton('grid-browse', 24);
+    ui.el('browse-pages').innerHTML = '';
+
+    try {
+      if (!this._unlimitedLoaded) {
+        const data = await api.getUnlimited();
+        this._unlimitedData = api.extractUnlimitedList(data);
+        this._unlimitedLoaded = true;
+        const counter = document.getElementById('unlimited-counter');
+        if (counter) counter.textContent = `${this._unlimitedData.length.toLocaleString()} komik`;
+      }
+
+      let comics = this._unlimitedData || [];
+
+      // Filter by search if active
+      if (this._unlimitedSearch) {
+        const q = this._unlimitedSearch.toLowerCase();
+        comics = comics.filter(c => {
+          const title = (c.title || '').toLowerCase();
+          const genre = (c.genre || '').toLowerCase();
+          return title.includes(q) || genre.includes(q);
+        });
+      }
+
+      const counter = document.getElementById('unlimited-counter');
+      if (counter && this._unlimitedSearch) {
+        counter.textContent = `${comics.length} hasil dari ${this._unlimitedData.length.toLocaleString()} komik`;
+      } else if (counter) {
+        counter.textContent = `${this._unlimitedData.length.toLocaleString()} komik`;
+      }
+
+      ui.renderGrid('grid-browse', comics);
+    } catch (e) {
+      ui.error('grid-browse', `Gagal memuat semua komik: ${e.message}`);
+    }
+  },
+
+  unlimitedSearch() {
+    const input = document.getElementById('unlimited-search-input');
+    this._unlimitedSearch = (input?.value || '').trim();
+    this.fetchUnlimited();
+  },
+
+  clearUnlimitedSearch() {
+    const input = document.getElementById('unlimited-search-input');
+    if (input) input.value = '';
+    this._unlimitedSearch = '';
+    this.fetchUnlimited();
   },
 };
 
