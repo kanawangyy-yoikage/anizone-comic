@@ -438,3 +438,109 @@
   .history-grid  { grid-template-columns: 1fr; }
   .reader-bottom-nav { flex-wrap: wrap; justify-content: center; }
 }
+
+/* =============================================
+   GENRE PANEL
+   ============================================= */
+
+.genre-panel {
+  margin: 0.5rem 0 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--surface2);
+}
+
+.genre-toggle-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.65rem 1rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text);
+  font-size: 0.875rem;
+  font-weight: 600;
+  gap: 0.5rem;
+  transition: background 0.15s;
+}
+.genre-toggle-btn:hover,
+.genre-toggle-btn.active {
+  background: var(--surface3);
+}
+.genre-toggle-btn svg {
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+  color: var(--muted);
+}
+
+.genre-chips-wrapper {
+  padding: 0.75rem 0.75rem 0.85rem;
+  border-top: 1px solid var(--border);
+}
+
+.genre-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.genre-chip {
+  padding: 0.3rem 0.75rem;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--surface3);
+  color: var(--text);
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.genre-chip:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.genre-chip.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+
+.genre-loading {
+  font-size: 0.82rem;
+  color: var(--muted);
+  padding: 0.25rem 0;
+}
+
+/* ACTIVE GENRE BAR */
+.active-genre-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  border-radius: 8px;
+  padding: 0.45rem 0.85rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--accent);
+  gap: 0.5rem;
+}
+.active-genre-bar button {
+  background: transparent;
+  border: 1px solid currentColor;
+  border-radius: 20px;
+  padding: 0.2rem 0.6rem;
+  cursor: pointer;
+  color: inherit;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+.active-genre-bar button:hover {
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
+}
