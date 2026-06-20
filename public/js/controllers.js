@@ -83,14 +83,59 @@ const homeController = {
    BROWSE / LIBRARY CONTROLLER
    ============================================ */
 const browseController = {
-  type:  '',
-  genre: '',
-  page:  1,
+  type:        '',
+  genre:       '',
+  page:        1,
   _genreLabel: '',
+  _genresLoaded: false,
+  _genrePanelOpen: false,
 
   async load() {
     router.go('browse');
     this.fetchData();
+    if (!this._genresLoaded) this.loadGenres();
+  },
+
+  async loadGenres() {
+    try {
+      const data = await api.getGenres();
+      const genres = data?.genres ?? data?.data ?? (Array.isArray(data) ? data : []);
+      this._genresLoaded = true;
+      this._renderGenreChips(genres);
+    } catch (e) {
+      const el = ui.el('genre-chips');
+      if (el) el.innerHTML = '<div class="genre-loading" style="color:var(--danger)">Gagal memuat genre</div>';
+    }
+  },
+
+  _renderGenreChips(genres) {
+    const el = ui.el('genre-chips');
+    if (!el || !genres.length) return;
+    el.innerHTML = genres.map(g => {
+      const name = g.name || g.title || g;
+      const slug = g.value || g.slug || g;
+      const safe = String(slug).replace(/'/g, "\\'");
+      const safeName = String(name).replace(/'/g, "\\'");
+      return `<button class="genre-chip" data-slug="${slug}" onclick="browseController.filterGenre('${safe}','${safeName}',this)">${name}</button>`;
+    }).join('');
+    // Mark active if already filtered
+    if (this.genre) this._markActiveChip(this.genre);
+  },
+
+  _markActiveChip(slug) {
+    document.querySelectorAll('#genre-chips .genre-chip').forEach(b => {
+      b.classList.toggle('active', b.dataset.slug === slug);
+    });
+  },
+
+  toggleGenrePanel() {
+    this._genrePanelOpen = !this._genrePanelOpen;
+    const wrapper  = ui.el('genre-chips-wrapper');
+    const chevron  = ui.el('genre-chevron');
+    if (wrapper) wrapper.style.display = this._genrePanelOpen ? 'block' : 'none';
+    if (chevron) chevron.style.transform = this._genrePanelOpen ? 'rotate(180deg)' : '';
+    const btn = ui.el('genre-toggle-btn');
+    if (btn) btn.classList.toggle('active', this._genrePanelOpen);
   },
 
   setType(type, btnEl) {
@@ -98,24 +143,55 @@ const browseController = {
     btnEl.classList.add('active');
     this.type  = type;
     this.genre = '';
+    this._genreLabel = '';
     this.page  = 1;
+    this._updateActiveGenreBar();
+    this._markActiveChip('');
     this.fetchData();
   },
 
-  filterGenre(slug, label) {
-    this.genre      = slug;
+  filterGenre(slug, label, chipEl) {
+    // Toggle off if same genre clicked
+    if (this.genre === slug) {
+      this.clearGenre();
+      return;
+    }
+    this.genre       = slug;
     this._genreLabel = label;
-    this.type       = '';
-    this.page       = 1;
+    this.type        = '';
+    this.page        = 1;
 
     // Reset type chips
     document.querySelectorAll('#type-filter .filter-chip').forEach((b, i) => {
       b.classList.toggle('active', i === 0);
     });
 
+    this._markActiveChip(slug);
+    this._updateActiveGenreBar();
     router.go('browse');
     this.fetchData();
-    if (label) ui.toast(`📚 Genre: ${label}`);
+    if (label) ui.toast(`🏷️ Genre: ${label}`);
+  },
+
+  clearGenre() {
+    this.genre       = '';
+    this._genreLabel = '';
+    this.page        = 1;
+    this._markActiveChip('');
+    this._updateActiveGenreBar();
+    this.fetchData();
+  },
+
+  _updateActiveGenreBar() {
+    const bar   = ui.el('active-genre-bar');
+    const label = ui.el('active-genre-label');
+    if (!bar) return;
+    if (this.genre && this._genreLabel) {
+      bar.style.display = 'flex';
+      if (label) label.textContent = `🏷️ Genre: ${this._genreLabel}`;
+    } else {
+      bar.style.display = 'none';
+    }
   },
 
   async fetchData() {
